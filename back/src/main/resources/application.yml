@@ -17,3 +17,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 
+jwt:
+  secret: b91c17877cb5f37cdc87a6be552b184f4e3cf9e4c0e5b6d827060d54b596c2a5497bc60f71aaf0bb19666c3350ce184e951757dd0389ac25a6005e7ec7ae6060
+
+

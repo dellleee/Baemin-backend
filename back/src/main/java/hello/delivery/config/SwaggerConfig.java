@@ -1,5 +1,7 @@
-package config;
+package hello.delivery.config;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -22,4 +24,5 @@ public class SwaggerConfig {
                 .description("Delivery 서비스 API 명세서")
                 .version("1.0.0");
     }
+
 }
