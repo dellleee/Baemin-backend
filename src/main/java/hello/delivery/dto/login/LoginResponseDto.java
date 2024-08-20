@@ -1,11 +1,25 @@
 package hello.delivery.dto.login;
 
-import hello.delivery.entity.Member;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
-public class LoginResponseDto {
+import java.util.List;
 
-    public Boolean loginSuccess;
-    public Member member;
+@Getter
+@NoArgsConstructor
+public class LoginResponseDto<T> {
+
+    private Long id;
+    private String nickname;
+    private String email;
+    private List<T> token;
+
+    @Builder
+    public LoginResponseDto(Long id, String nickname, String email, List<T> token) {
+        this.id = id;
+        this.nickname = nickname;
+        this.email = email;
+        this.token = token;
+    }
 }
