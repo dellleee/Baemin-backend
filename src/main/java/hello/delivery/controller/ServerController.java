@@ -27,8 +27,7 @@ public class ServerController {
     public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletRequest request) {
 
         try {
-            String currentDomain = request.getServerName();  //현재 도메인 확인(로컬인지 배포인지) , 배포하고 난 후
-            return ResponseEntity.ok(kakaoService.kakaoLogin(code, currentDomain));
+            return ResponseEntity.ok(kakaoService.kakaoLogin(code));
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Item Not Found");
         }

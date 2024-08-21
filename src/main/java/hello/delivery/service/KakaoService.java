@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import hello.delivery.Exception.UserNotFoundException;
 import hello.delivery.dto.login.KakaoTokenDto;
 import hello.delivery.dto.login.LoginResponseDto;
+import hello.delivery.entity.AuthToken;
 import hello.delivery.entity.Role;
 import hello.delivery.entity.User;
-import hello.delivery.oauth2.jwt.AuthTokenGenerator;
-import hello.delivery.oauth2.jwt.JwtTokenProvider;
+import hello.delivery.auth.jwt.AuthTokenGenerator;
+import hello.delivery.auth.jwt.JwtTokenProvider;
 import hello.delivery.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,7 @@ public class KakaoService {
 
     private final UserRepository userRepository;
     private final AuthTokenGenerator authTokenGenerator;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final RestTemplate restTemplate;
 
 
     @Value("${kakao.client.id}")
@@ -50,17 +52,22 @@ public class KakaoService {
     private String kakaoTokenUri;
 
     @Transactional
-    public LoginResponseDto<KakaoTokenDto> kakaoLogin(String code, String currentDomain) {
+    public LoginResponseDto kakaoLogin(String code) {
         String kakaoAccessToken = getKakaoAccessToken(code);
-        HashMap<String, Object> kakaoInfo = getKakaoInfo(kakaoAccessToken);
-        LoginResponseDto<KakaoTokenDto> kakaoUserResponse = kakaoUserLogin(kakaoInfo);
+        HashMap<String, Object> kakaoInfo = getKakaoInfo(kakaoAccessToken);  //유저정보 가져오기
+        LoginResponseDto kakaoUserResponse = kakaoUserLogin(kakaoInfo); //로그인,회원가입
 
         return kakaoUserResponse;
     }
 
 
+    /**
+     * 카카오서버에서 액세스 토큰 가져오기
+     * @param code
+     * @return
+     */
     private String getKakaoAccessToken(String code) {
-        HttpHeaders headers = new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders(); // http헤더 생성
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -73,22 +80,23 @@ public class KakaoService {
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headers);
 
         //카카오로부터 AccessToken 받아오기
-        RestTemplate rt = new RestTemplate();  //restTemplate post방식으로 작동함
-        ResponseEntity<String> accessTokenResponse = rt.exchange(
-                kakaoTokenUri,
-                HttpMethod.POST,
-                kakaoTokenRequest,
-                String.class);
+        //restTemplate post방식으로 작동함
+        ResponseEntity<String> accessTokenResponse = restTemplate.exchange(
+                kakaoTokenUri, //카카오 엑세스토큰을 받아오는 uri, 카카오 공식 문서 기준 고정됨.
+                HttpMethod.POST, //post방법으로
+                kakaoTokenRequest,  //요청할 HttpEntity
+                String.class); //String 타입으로 반환
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule()); //LocalDateTime타입의 객체를 직렬/역직렬
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        KakaoTokenDto kakaoTokenDto = null;
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);  //기본?
+        KakaoTokenDto kakaoTokenDto = null;  //카카오토큰을 받아올 객체
 
         try {
             kakaoTokenDto = objectMapper.readValue(accessTokenResponse.getBody(), KakaoTokenDto.class);
             log.info("kakaoTokenDto = {}", kakaoTokenDto);
         } catch (JsonProcessingException e) {
+            log.error("카카오 Token 받아오기 실패");
             e.printStackTrace();
         }
         return kakaoTokenDto.getAccessToken();
@@ -102,18 +110,18 @@ public class KakaoService {
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
         HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response = rt.exchange(
-                "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.POST,
-                kakaoUserInfoRequest,
-                String.class);
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v2/user/me",  //카카오공식문서기준 고정, 카카오유저정보 얻어오는 uri
+                HttpMethod.POST, //post방법으로
+                kakaoUserInfoRequest, //요청하는 HttpEntity
+                String.class);  //String타입으로 반환
 
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = null;
         try {
             jsonNode = objectMapper.readTree(responseBody);
+            log.info("jsonNode info={}", jsonNode);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -125,7 +133,6 @@ public class KakaoService {
         userInfo.put("nickname", nickname);
 
         return userInfo;
-
     }
 
     private LoginResponseDto kakaoUserLogin(HashMap<String, Object> userInfo) {
@@ -145,6 +152,10 @@ public class KakaoService {
                     .status("일반").build();
             userRepository.save(user);
         }
-        return new LoginResponseDto();  //임시
+        User tokenUser = userRepository.findByEmail(kakaoEmail).orElseThrow(() ->
+                new UserNotFoundException("토큰을 발급할 유저를 찾을 수 없습니다"));
+        Long id = tokenUser.getId();
+        AuthToken token = authTokenGenerator.generate(id);
+        return new LoginResponseDto(id, nickname, kakaoEmail, token);
     }
 }
