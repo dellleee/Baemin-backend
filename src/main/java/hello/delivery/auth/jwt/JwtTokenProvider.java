@@ -27,14 +27,14 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .subject(id)
                 .expiration(expiredAt)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .signWith(key)
                 .compact();
     }
 
     public String refreshTokenGenerate(Date expiredAt) {
         return Jwts.builder()
                 .expiration(expiredAt)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .signWith(key)
                 .compact();
     }
 }
