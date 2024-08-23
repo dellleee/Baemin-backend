@@ -8,3 +8,7 @@ on:
 jobs:
   My-deploy-Job:
     runs-on: ubuntu-latest
+
+    steps:
+      - name: workflow test
+        run: "Hello dellee"
