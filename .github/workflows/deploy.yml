@@ -1,1 +1,10 @@
 name: delivery Action
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  My-deploy-Job:
+    runs-on: ubuntu-latest
