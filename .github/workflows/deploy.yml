@@ -11,4 +11,4 @@ jobs:
 
     steps:
       - name: workflow test
-        run: "Hello dellee"
+        run: echo "Hello dellee"
