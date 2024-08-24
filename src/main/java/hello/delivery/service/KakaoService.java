@@ -126,7 +126,7 @@ public class KakaoService {
             e.printStackTrace();
         }
 
-        String email = jsonNode.get("kakao_acount").get("email").asText();
+        String email = jsonNode.get("kakao_account").get("email").asText();
         String nickname = jsonNode.get("properties").get("nickname").asText();
 
         userInfo.put("email", email);
