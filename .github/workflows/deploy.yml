@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: SSH로 EC2에 접속
-        uses: appleboy/ssh-action@v1.0.7
+        uses: appleboy/ssh-action@v1.0.3
         env:
           APPLICATION_PROPERTIES: ${{ secrets.APPLICATION_PROPERTIES }}
         with:
