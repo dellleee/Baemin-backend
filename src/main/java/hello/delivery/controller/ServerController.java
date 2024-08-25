@@ -2,6 +2,7 @@ package hello.delivery.controller;
 
 import hello.delivery.dto.login.LoginResponseDto;
 import hello.delivery.service.KakaoService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class ServerController {
 
     private final KakaoService kakaoService;
 
+    @Operation(summary = "로그인",description = "카카오 로그인 메서드")
     @GetMapping("/login/oauth2/callback/kakao")
     public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletRequest request) {
 

@@ -32,6 +32,7 @@ import java.util.HashMap;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class KakaoService {
 
     private final UserRepository userRepository;
@@ -51,7 +52,7 @@ public class KakaoService {
     @Value("${kakao.token.uri}")
     private String kakaoTokenUri;
 
-    @Transactional
+
     public LoginResponseDto kakaoLogin(String code) {
         String kakaoAccessToken = getKakaoAccessToken(code);
         HashMap<String, Object> kakaoInfo = getKakaoInfo(kakaoAccessToken);  //유저정보 가져오기
@@ -135,7 +136,8 @@ public class KakaoService {
         return userInfo;
     }
 
-    private LoginResponseDto kakaoUserLogin(HashMap<String, Object> userInfo) {
+    @Transactional
+    public LoginResponseDto kakaoUserLogin(HashMap<String, Object> userInfo) {
 
         String kakaoEmail = userInfo.get("email").toString();
         String nickname = userInfo.get("nickname").toString();
