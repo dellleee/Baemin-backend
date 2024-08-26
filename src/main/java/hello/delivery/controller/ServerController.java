@@ -1,13 +1,13 @@
 package hello.delivery.controller;
 
 import hello.delivery.dto.login.LoginResponseDto;
+import hello.delivery.service.GoogleService;
 import hello.delivery.service.KakaoService;
 import hello.delivery.service.NaverService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,6 +27,7 @@ public class ServerController {
 
     private final KakaoService kakaoService;
     private final NaverService naverService;
+    private final GoogleService googleService;
 
     @Operation(summary = "로그인", description = "카카오 로그인")
     @GetMapping("/login/oauth2/callback/kakao")
@@ -41,9 +42,19 @@ public class ServerController {
 
     @Operation(summary = "로그인", description = "네이버 로그인")
     @GetMapping("/login/oauth2/callback/naver")
-    public ResponseEntity<LoginResponseDto> naverLogin(@RequestParam String code,@RequestParam String state, HttpServletRequest request) {
+    public ResponseEntity<LoginResponseDto> naverLogin(@RequestParam String code, @RequestParam String state, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(naverService.naverLogin(code,state));
+            return ResponseEntity.ok(naverService.naverLogin(code, state));
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Item Not Found");
+        }
+    }
+
+    @Operation(summary = "로그인", description = "구글 로그인")
+    @GetMapping("/login/ouath2/callback/google")
+    public ResponseEntity<LoginResponseDto> googleLogin(@RequestParam String code, HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(googleService.googleLogin(code));
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Item Not Found");
         }
