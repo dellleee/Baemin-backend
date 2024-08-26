@@ -12,7 +12,6 @@ import hello.delivery.entity.AuthToken;
 import hello.delivery.entity.Role;
 import hello.delivery.entity.User;
 import hello.delivery.auth.jwt.AuthTokenGenerator;
-import hello.delivery.auth.jwt.JwtTokenProvider;
 import hello.delivery.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,17 +45,12 @@ public class KakaoService {
     @Value("${kakao.client.secret}")
     private String kakaoSecret;
 
-    @Value("${kakao.redirect.uri}")
-    private String kakaoRedirectUri;
-
-    @Value("${kakao.token.uri}")
-    private String kakaoTokenUri;
 
 
     public LoginResponseDto kakaoLogin(String code) {
-        String kakaoAccessToken = getKakaoAccessToken(code);
+        String kakaoAccessToken = getKakaoAccessToken(code);  //인가코드로 카카오 액세스토큰 가져오기
         HashMap<String, Object> kakaoInfo = getKakaoInfo(kakaoAccessToken);  //유저정보 가져오기
-        LoginResponseDto kakaoUserResponse = kakaoUserLogin(kakaoInfo); //로그인,회원가입
+        LoginResponseDto kakaoUserResponse = kakaoUserLogin(kakaoInfo); //로그인,회원가입처리
 
         return kakaoUserResponse;
     }
@@ -76,14 +70,14 @@ public class KakaoService {
         params.add("client_id", kakaoClientId);
         params.add("client_secret", kakaoSecret);
         params.add("code", code);
-        params.add("redirect_uri", kakaoRedirectUri);
+        params.add("redirect_uri", "http://localhost:3000/login/oauth2/callback/kakao");
 
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headers);
 
         //카카오로부터 AccessToken 받아오기
         //restTemplate post방식으로 작동함
         ResponseEntity<String> accessTokenResponse = restTemplate.exchange(
-                kakaoTokenUri, //카카오 엑세스토큰을 받아오는 uri, 카카오 공식 문서 기준 고정됨.
+                "https://kauth.kakao.com/oauth/token", //카카오 엑세스토큰을 받아오는 uri, 카카오 공식 문서 기준 고정됨.
                 HttpMethod.POST, //post방법으로
                 kakaoTokenRequest,  //요청할 HttpEntity
                 String.class); //String 타입으로 반환
@@ -122,7 +116,7 @@ public class KakaoService {
         JsonNode jsonNode = null;
         try {
             jsonNode = objectMapper.readTree(responseBody);
-            log.info("jsonNode info={}", jsonNode);
+            log.info("kakao Userinfo={}", jsonNode);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -155,7 +149,7 @@ public class KakaoService {
             userRepository.save(user);
         }
         User tokenUser = userRepository.findByEmail(kakaoEmail).orElseThrow(() ->
-                new UserNotFoundException("토큰을 발급할 유저를 찾을 수 없습니다"));
+                new UserNotFoundException("토큰을 발급할 카카오 유저를 찾을 수 없습니다"));
         Long id = tokenUser.getId();
         AuthToken token = authTokenGenerator.generate(id);
         return new LoginResponseDto(id, nickname, kakaoEmail, token);

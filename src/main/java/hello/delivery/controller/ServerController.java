@@ -2,6 +2,7 @@ package hello.delivery.controller;
 
 import hello.delivery.dto.login.LoginResponseDto;
 import hello.delivery.service.KakaoService;
+import hello.delivery.service.NaverService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,16 +26,26 @@ import java.util.NoSuchElementException;
 public class ServerController {
 
     private final KakaoService kakaoService;
+    private final NaverService naverService;
 
-    @Operation(summary = "로그인",description = "카카오 로그인 메서드")
+    @Operation(summary = "로그인", description = "카카오 로그인")
     @GetMapping("/login/oauth2/callback/kakao")
     public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletRequest request) {
-
         try {
             return ResponseEntity.ok(kakaoService.kakaoLogin(code));
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Item Not Found");
         }
 
+    }
+
+    @Operation(summary = "로그인", description = "네이버 로그인")
+    @GetMapping("/login/oauth2/callback/naver")
+    public ResponseEntity<LoginResponseDto> naverLogin(@RequestParam String code,@RequestParam String state, HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(naverService.naverLogin(code,state));
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Item Not Found");
+        }
     }
 }
