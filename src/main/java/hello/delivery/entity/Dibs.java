@@ -1,9 +1,6 @@
 package hello.delivery.entity;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +10,9 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Dibs extends BaseTimeEntity {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
+    @Column(name = "dibs_id")
     private Long id;
     private String status;
 }

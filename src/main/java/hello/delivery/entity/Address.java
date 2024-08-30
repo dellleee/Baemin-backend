@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Address extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String roadAddress;  //주소
     private String addressDetail;  //상세주소

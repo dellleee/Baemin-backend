@@ -11,11 +11,14 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Store extends BaseTimeEntity{
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "store_id")
     private Long id;
     private String storeName;
     private int type;
     private String category;
+    @Embedded
     private StoreImage storeImage;
     private String phone;
     private String content;
@@ -27,10 +30,9 @@ public class Store extends BaseTimeEntity{
     private String operationHour;
     private String closedDate;
     private String deliveryPossibleAddress;
-    private String status;
 
     @Builder
-    public Store(String storeName, int type, String category, StoreImage storeImage, String phone, String content, int minDeliveryPrice, int deliveryTip, int minDeliveryTime, int maxDeliveryTime, float rate, String operationHour, String closedDate, String deliveryPossibleAddress, String status) {
+    public Store(String storeName, int type, String category, StoreImage storeImage, String phone, String content, int minDeliveryPrice, int deliveryTip, int minDeliveryTime, int maxDeliveryTime, float rate, String operationHour, String closedDate, String deliveryPossibleAddress) {
         this.storeName = storeName;
         this.type = type;
         this.category = category;
@@ -45,6 +47,5 @@ public class Store extends BaseTimeEntity{
         this.operationHour = operationHour;
         this.closedDate = closedDate;
         this.deliveryPossibleAddress = deliveryPossibleAddress;
-        this.status = status;
     }
 }

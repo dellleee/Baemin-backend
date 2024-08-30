@@ -1,5 +1,6 @@
 package hello.delivery.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class CeoReview extends BaseTimeEntity {
 
     @Id
+    @Column(name = "ceo_review_id")
     private Long id;  //리뷰와 같은 pk번호를 쓴다
     private String content;
     private String status;
