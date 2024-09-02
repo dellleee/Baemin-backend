@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -18,7 +21,6 @@ public class User extends BaseTimeEntity{
 
     @Column(nullable = false, length = 10)
     private String userName;
-
 
     @Column(nullable = false, length = 20, unique = true)
     private String email;
@@ -35,13 +37,23 @@ public class User extends BaseTimeEntity{
     @Enumerated(value = EnumType.STRING)
     private  Role role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Address> addressHistory = new ArrayList<>();
+
     @Builder
-    public User(String userName, String email, String userGrade, String status, Role role, String loginType) {
+    public User(String userName, String email, String loginType, String userGrade, String status, Role role) {
         this.userName = userName;
         this.email = email;
+        this.loginType = loginType;
         this.userGrade = userGrade;
         this.status = status;
         this.role = role;
-        this.loginType = loginType;
     }
+
+    // == 연관관계 메서드 == //
+    public void addAddress(Address address) {
+        addressHistory.add(address);
+        address.setUser(this);
+    }
+
 }

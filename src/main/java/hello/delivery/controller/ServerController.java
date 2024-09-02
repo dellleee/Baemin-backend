@@ -10,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.NoSuchElementException;
@@ -22,6 +19,7 @@ import java.util.NoSuchElementException;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/login/oauth2/callback")
 @CrossOrigin
 public class ServerController {
 
@@ -30,7 +28,7 @@ public class ServerController {
     private final GoogleService googleService;
 
     @Operation(summary = "로그인", description = "카카오 로그인")
-    @GetMapping("/login/oauth2/callback/kakao")
+    @GetMapping("/kakao")
     public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam String code, HttpServletRequest request) {
         try {
             return ResponseEntity.ok(kakaoService.kakaoLogin(code));
@@ -41,7 +39,7 @@ public class ServerController {
     }
 
     @Operation(summary = "로그인", description = "네이버 로그인")
-    @GetMapping("/login/oauth2/callback/naver")
+    @GetMapping("/naver")
     public ResponseEntity<LoginResponseDto> naverLogin(@RequestParam String code, @RequestParam String state, HttpServletRequest request) {
         try {
             return ResponseEntity.ok(naverService.naverLogin(code, state));
@@ -51,7 +49,7 @@ public class ServerController {
     }
 
     @Operation(summary = "로그인", description = "구글 로그인")
-    @GetMapping("/login/ouath2/callback/google")
+    @GetMapping("/google")
     public ResponseEntity<LoginResponseDto> googleLogin(@RequestParam String code, HttpServletRequest request) {
         try {
             return ResponseEntity.ok(googleService.googleLogin(code));
