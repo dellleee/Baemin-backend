@@ -1,6 +1,7 @@
 package hello.delivery.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,9 +14,12 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank
     private String roadAddress;  //주소
+    @NotBlank
     private String addressDetail;  //상세주소
     @Column(length = 10)
+    @NotBlank
     private String zipcode; //우편번호
 
     @ManyToOne(fetch = FetchType.LAZY)
