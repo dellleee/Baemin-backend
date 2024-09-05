@@ -28,7 +28,7 @@ public class JwtTokenProvider {
 
     public String accessTokenGenerate(String id, Date expiredAt) {
         return Jwts.builder()
-                .subject(id)
+                .subject(id) //User의 id
                 .expiration(expiredAt)
                 .signWith(key)
                 .compact();

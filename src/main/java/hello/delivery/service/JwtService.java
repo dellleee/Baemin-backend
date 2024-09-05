@@ -19,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class JwtService {
+
     private final ApplicationContext context;
     private final RefreshTokenRepository refreshTokenRepository;
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;  //1시간
@@ -28,6 +29,12 @@ public class JwtService {
         return refreshTokenRepository.findByRefreshToken(refreshToken);
     }
 
+    /**
+     *
+     * @param id (user id)
+     * @param bearerRefreshToken
+     * @return
+     */
     @Transactional
     public TokenDto refresh(Long id, String bearerRefreshToken) {
 
@@ -41,7 +48,7 @@ public class JwtService {
                 .orElseThrow(() -> new TokenNotFoundException("accessToken을 refresh할 refreshToken을 찾지 못했습니다"));
 
         //만료된 refreshToken이면 refresh,access 둘 다 재발급
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
+        if (!jwtTokenProvider.validateToken(refreshToken)) {  //false여야만 돌아감
 
             //만료된 refreshToken 삭제
             refreshTokenRepository.delete(findRefreshToken);
@@ -59,10 +66,10 @@ public class JwtService {
                         .refreshToken(newRefreshToken)
                         .build();
 
-                refreshTokenRepository.save(token);
+            RefreshToken savedToken = refreshTokenRepository.save(token);
 
             TokenDto tokenDto = TokenDto.builder()
-                    .id(token.getId())
+                    .id(savedToken.getId())
                     .refreshToken(newRefreshToken)
                     .accessToken(newAccessToken)
                     .build();
@@ -70,7 +77,6 @@ public class JwtService {
             return tokenDto;
 
         } else {  //refresh토큰이 아직 유효하면 accessToken만 재발급
-
 
             long now = new Date().getTime();
             Date expiry = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);

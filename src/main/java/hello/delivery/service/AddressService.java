@@ -44,14 +44,13 @@ public class AddressService {
      */
 
     @Transactional
-    public Long updateAddress(Long id, Address address) {
+    public void updateAddress(Long id, Address address) {
 
         //회원조회
         User findUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("주소를 업데이트 할 회원을 찾을 수 없습니다"));
         //주소 지정
         findUser.addAddress(address);
-        return id;
     }
 
     /**
